@@ -54,16 +54,6 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Terraform | Set up statefile S3 Bucket for Backend
-        run: |
-          echo "terraform {
-            backend \"s3\" {
-              bucket = \"${{ secrets.AWS_ACCOUNT_ID }}-tfstate\"
-              key    = \"infra-${{ env.ENVIRONMENT }}.tfstate\"
-              region = \"${{ vars.AWS_REGION }}\"
-            }
-          }" > backend_generated.tf # Alterado para arquivo separado para evitar conflito no provider.tf
-
       - name: Terraform | Initialize backend
         run: terraform init
 
