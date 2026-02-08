@@ -1,9 +1,4 @@
-# 1. Configuração do Origin Access Identity (OAI) - Mais compatível com laboratórios
-resource "aws_cloudfront_origin_access_identity" "default" {
-  comment = "OAI para acesso aos buckets S3 dos portais Uniplus"
-}
-
-# 2. Definição dos Portais
+# 1. Definição dos Portais
 locals {
   portals = {
     "aluno"     = "uniplus-portal-aluno-spa"
@@ -12,14 +7,14 @@ locals {
   }
 }
 
-# 3. Criação dos Buckets S3 para cada portal
+# 2. Criação dos Buckets S3
 resource "aws_s3_bucket" "portal_buckets" {
   for_each = local.portals
   bucket   = each.value
   force_destroy = true
 }
 
-# Configuração de Site Estático para os Buckets
+# 3. Configuração de Site Estático (O CloudFront usará isso como origem)
 resource "aws_s3_bucket_website_configuration" "web_config" {
   for_each = aws_s3_bucket.portal_buckets
   bucket   = each.value.id
@@ -28,22 +23,56 @@ resource "aws_s3_bucket_website_configuration" "web_config" {
   error_document { key    = "index.html" }
 }
 
-# 4. Distribuições CloudFront
+# 4. Desativar bloqueio de acesso público (Necessário para o lab aceitar a política)
+resource "aws_s3_bucket_public_access_block" "public_allow" {
+  for_each = aws_s3_bucket.portal_buckets
+  bucket   = each.value.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# 5. Política de Bucket Aberta para Leitura (Padrão para sites estáticos em Labs)
+resource "aws_s3_bucket_policy" "allow_public_read" {
+  for_each = aws_s3_bucket.portal_buckets
+  bucket   = each.value.id
+  depends_on = [aws_s3_bucket_public_access_block.public_allow]
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.portal_buckets[each.key].arn}/*"
+      }
+    ]
+  })
+}
+
+# 6. Distribuições CloudFront (Apontando para o Site Estático)
 resource "aws_cloudfront_distribution" "s3_distribution" {
   for_each = local.portals
 
   enabled             = true
-  web_acl_id          = aws_wafv2_web_acl.main.arn # Conectado ao WAF corrigido
+  web_acl_id          = aws_wafv2_web_acl.main.arn
   is_ipv6_enabled     = true
   default_root_object = "index.html"
 
   origin {
-    domain_name = aws_s3_bucket.portal_buckets[each.key].bucket_regional_domain_name
+    # Usamos o endpoint de website (HTTP) em vez do domínio regional (S3 API)
+    domain_name = aws_s3_bucket_website_configuration.web_config[each.key].website_endpoint
     origin_id   = "S3-${each.value}"
 
-    # Alterado de origin_access_control para s3_origin_config (OAI)
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.default.cloudfront_access_identity_path
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
 
@@ -72,29 +101,4 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
-
-  tags = {
-    Environment = "Prod"
-    Portal      = each.key
-  }
-}
-
-# 5. Políticas de Bucket (Atualizado para OAI)
-resource "aws_s3_bucket_policy" "allow_cloudfront" {
-  for_each = local.portals
-  bucket   = aws_s3_bucket.portal_buckets[each.key].id
-  policy   = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "AllowCloudFrontOAIReadOnly"
-        Effect    = "Allow"
-        Principal = {
-          AWS = aws_cloudfront_origin_access_identity.default.iam_arn
-        }
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.portal_buckets[each.key].arn}/*"
-      }
-    ]
-  })
 }
