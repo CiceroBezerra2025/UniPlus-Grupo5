@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "video_in"  { bucket = "uniplus-video-input-g5" }
+resource "aws_s3_bucket" "video_in" { bucket = "uniplus-video-input-g5" }
 resource "aws_s3_bucket" "video_out" { bucket = "uniplus-video-output-g5" }
 
 resource "aws_lambda_function" "processor" {

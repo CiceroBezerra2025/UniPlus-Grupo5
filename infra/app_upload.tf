@@ -14,13 +14,13 @@ locals {
 resource "aws_s3_object" "arquivos_aluno" {
   for_each = fileset("../app/aluno/", "**/*")
 
-  bucket       = aws_s3_bucket.portal_buckets["aluno"].id
-  key          = each.value
-  source       = "../app/aluno/${each.value}"
+  bucket = aws_s3_bucket.portal_buckets["aluno"].id
+  key    = each.value
+  source = "../app/aluno/${each.value}"
   # Define o tipo do arquivo baseado na extensão, padrão é text/plain
   content_type = lookup(local.mime_types, element(split(".", each.value), length(split(".", each.value)) - 1), "text/plain")
   # Garante que o upload ocorra apenas após o bucket estar pronto
-  depends_on   = [aws_s3_bucket.portal_buckets]
+  depends_on = [aws_s3_bucket.portal_buckets]
 }
 
 # Upload para o Portal Professor

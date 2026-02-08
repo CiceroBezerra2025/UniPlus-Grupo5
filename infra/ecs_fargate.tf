@@ -3,7 +3,7 @@ resource "aws_ecs_cluster" "main" {
   name = "uniplus-cluster-g5"
 }
 
-# Definição das Tarefas com as páginas de validação solicitadas
+# Definição das Tarefas com as páginas de validação
 resource "aws_ecs_task_definition" "apps" {
   for_each                 = toset(["auth", "conteudo", "academico"])
   family                   = "uniplus-${each.key}"
@@ -16,7 +16,10 @@ resource "aws_ecs_task_definition" "apps" {
   container_definitions = jsonencode([{
     name  = each.key
     image = "nginx:alpine"
-    portMappings = [{ containerPort = 80, hostPort = 80 }]
+    portMappings = [{
+      containerPort = 80
+      hostPort      = 80
+    }]
     command = [
       "/bin/sh",
       "-c",
@@ -25,7 +28,7 @@ resource "aws_ecs_task_definition" "apps" {
   }])
 }
 
-# Serviços rodando nas subnets privadas (segurança)
+# Serviços rodando nas subnets privadas
 resource "aws_ecs_service" "svc" {
   for_each        = toset(["auth", "conteudo", "academico"])
   name            = "${each.key}-service"
@@ -65,7 +68,9 @@ resource "aws_appautoscaling_policy" "cpu_policy" {
   service_namespace  = aws_appautoscaling_target.scale_target[each.key].service_namespace
 
   target_tracking_scaling_policy_configuration {
-    predefined_metric_specification { predefined_metric_type = "ECSServiceAverageCPUUtilization" }
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
     target_value = 70.0
   }
 }

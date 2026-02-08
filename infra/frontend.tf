@@ -9,8 +9,8 @@ locals {
 
 # 2. Criação dos Buckets S3
 resource "aws_s3_bucket" "portal_buckets" {
-  for_each = local.portals
-  bucket   = each.value
+  for_each      = local.portals
+  bucket        = each.value
   force_destroy = true
 }
 
@@ -20,7 +20,7 @@ resource "aws_s3_bucket_website_configuration" "web_config" {
   bucket   = each.value.id
 
   index_document { suffix = "index.html" }
-  error_document { key    = "index.html" }
+  error_document { key = "index.html" }
 }
 
 # 4. Liberar Acesso Público (Necessário para sites em Labs)
@@ -36,8 +36,8 @@ resource "aws_s3_bucket_public_access_block" "public_allow" {
 
 # 5. Política de Leitura Pública
 resource "aws_s3_bucket_policy" "allow_public_read" {
-  for_each = aws_s3_bucket.portal_buckets
-  bucket   = each.value.id
+  for_each   = aws_s3_bucket.portal_buckets
+  bucket     = each.value.id
   depends_on = [aws_s3_bucket_public_access_block.public_allow]
 
   policy = jsonencode({
