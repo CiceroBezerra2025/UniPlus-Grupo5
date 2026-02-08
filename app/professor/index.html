@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniPlus | Painel do Professor</title>
+    <style>
+        :root { --primary: #311b92; --bg: #eceff1; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); }
+        .sidebar { background: white; padding: 20px; border-bottom: 4px solid var(--primary); display: flex; align-items: center; gap: 20px; }
+        .logo { height: 60px; }
+        .dashboard { padding: 40px 5%; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .tool-card { background: white; border-radius: 12px; padding: 30px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #ddd; }
+        .tool-card img { width: 70px; margin-bottom: 20px; }
+        .btn-action { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; width: 100%; font-weight: bold; }
+        .status-tag { display: inline-block; background: #ff5252; color: white; padding: 4px 12px; border-radius: 15px; font-size: 12px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h2 style="color: var(--primary);">Painel de Gestão Acadêmica</h2>
+    </div>
+    <div class="dashboard">
+        <div class="tool-card">
+            <span class="status-tag">12 Pendentes</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/3426/3426653.png" alt="Correção">
+            <h3>Corrigir Provas</h3>
+            <button class="btn-action">Iniciar Avaliação</button>
+        </div>
+        <div class="tool-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/2643/2643506.png" alt="Notas">
+            <h3>Lançar Notas e Faltas</h3>
+            <button class="btn-action">Abrir Diário de Classe</button>
+        </div>
+        <div class="tool-card">
+            <span class="status-tag" style="background:#00c853">5 Novas</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/3248/3248235.png" alt="Dúvidas">
+            <h3>Responder Alunos</h3>
+            <button class="btn-action">Abrir Fórum</button>
+        </div>
+        <div class="tool-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/8164/8164018.png" alt="Conteúdo">
+            <h3>Incluir Novos Conteúdos</h3>
+            <button class="btn-action">Fazer Upload</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniPlus | Matrículas Abertas - Transforme sua Carreira</title>
+    <style>
+        :root { --brand: #1a237e; --brand-light: #311b92; --cta: #d32f2f; --success: #00e676; --bg-light: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; color: #333; line-height: 1.6; }
+        
+        .nav-top { padding: 10px 5%; background: white; text-align: center; border-bottom: 2px solid var(--brand); position: sticky; top: 0; z-index: 1000; }
+        .logo-img { height: 60px; }
+
+        .hero { background: linear-gradient(rgba(26,35,126,0.92), rgba(26,35,126,0.92)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200'); background-size: cover; background-position: center; color: white; padding: 80px 5%; text-align: center; }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 20px; }
+        
+        .stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; margin-top: 40px; }
+        .stat-item { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; min-width: 140px; }
+        .stat-item h2 { font-size: 38px; margin: 0; color: var(--success); }
+
+        .course-section { padding: 60px 5%; background: #f0f2f5; text-align: center; }
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px; }
+        
+        .course-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.08); transition: 0.3s; text-align: left; }
+        .course-card:hover { transform: translateY(-10px); }
+        .course-card img { width: 100%; height: 180px; object-fit: cover; }
+        
+        .course-info { padding: 25px; }
+        .course-info h3 { margin: 0 0 10px; color: var(--brand); font-size: 1.3rem; }
+        .price-box { margin: 15px 0; }
+        .price-value { font-size: 1.6rem; font-weight: bold; color: var(--brand); }
+        .payment-info { font-size: 0.85rem; color: #27ae60; font-weight: bold; margin-bottom: 15px; }
+        
+        .btn-buy { background: var(--cta); color: white; display: block; text-align: center; padding: 12px; text-decoration: none; font-weight: bold; border-radius: 6px; transition: 0.3s; }
+        .btn-buy:hover { background: #b71c1c; }
+
+        .list-all-container { margin-top: 50px; }
+        .btn-outline { background: transparent; color: var(--brand); border: 2px solid var(--brand); padding: 15px 40px; text-decoration: none; font-weight: bold; border-radius: 30px; transition: 0.3s; display: inline-block; }
+        .btn-outline:hover { background: var(--brand); color: white; }
+
+        .testimonials { padding: 60px 5%; text-align: center; background: white; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 40px; }
+        .test-item { background: var(--bg-light); padding: 25px; border-radius: 10px; font-style: italic; }
+        
+        footer { background: var(--brand); color: white; padding: 30px; text-align: center; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-top">
+        <img src="logo.png" alt="UniPlus Logo" class="logo-img">
+    </div>
+
+    <div class="hero">
+        <h1>Sua Carreira Digital Começa Aqui</h1>
+        <p>Líder em EAD com mais de 12 anos de tradição e inovação tecnológica.</p>
+        <div class="stats">
+            <div class="stat-item"><h2>38k+</h2><p>Alunos Ativos</p></div>
+            <div class="stat-item"><h2>12</h2><p>Anos de Excelência</p></div>
+            <div class="stat-item"><h2>100%</h2><p>Foco no EAD</p></div>
+        </div>
+    </div>
+
+    <div class="course-section">
+        <h2 style="color: var(--brand);">Cursos em Destaque</h2>
+        
+        <div class="course-grid">
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400" alt="Software">
+                <div class="course-info">
+                    <h3>Engenharia de Software</h3>
+                    <div class="price-box"><span class="price-value">12x R$ 149,90</span></div>
+                    <p class="payment-info">✓ Boleto ou PIX com desconto</p>
+                    <a href="#" class="btn-buy">MATRICULE-SE</a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1551288049-bbbda595c7b8?w=400" alt="Data">
+                <div class="course-info">
+                    <h3>Data Science & BI</h3>
+                    <div class="price-box"><span class="price-value">12x R$ 179,90</span></div>
+                    <p class="payment-info">✓ Parcelamento em 2 cartões</p>
+                    <a href="#" class="btn-buy">MATRICULE-SE</a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400" alt="Cloud">
+                <div class="course-info">
+                    <h3>Cloud SRE & DevOps</h3>
+                    <div class="price-box"><span class="price-value">12x R$ 199,90</span></div>
+                    <p class="payment-info">✓ Inclui Lab de Prática AWS</p>
+                    <a href="#" class="btn-buy">MATRICULE-SE</a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=400" alt="Cyber">
+                <div class="course-info">
+                    <h3>Cibersegurança</h3>
+                    <div class="price-box"><span class="price-value">12x R$ 169,90</span></div>
+                    <p class="payment-info">✓ Foco em Defesa Ofensiva</p>
+                    <a href="#" class="btn-buy">MATRICULE-SE</a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=400" alt="UX">
+                <div class="course-info">
+                    <h3>UX/UI Design Digital</h3>
+                    <div class="price-box"><span class="price-value">12x R$ 129,90</span></div>
+                    <p class="payment-info">✓ Portfólio prático no Figma</p>
+                    <a href="#" class="btn-buy">MATRICULE-SE</a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400" alt="Gestao">
+                <div class="course-info">
+                    <h3>Gestão de Projetos Ágeis</h3>
+                    <div class="price-box"><span class="price-value">12x R$ 139,90</span></div>
+                    <p class="payment-info">✓ Certificação Scrum & Kanban</p>
+                    <a href="#" class="btn-buy">MATRICULE-SE</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="list-all-container">
+            <a href="#" class="btn-outline">VER TODOS OS CURSOS (50+)</a>
+        </div>
+    </div>
+
+    <div class="testimonials">
+        <h2>O que dizem nossos alunos</h2>
+        <div class="test-grid">
+            <div class="test-item">"A flexibilidade do EAD UniPlus permitiu que eu me tornasse SRE em uma multinacional!"<br><strong>- João P.</strong></div>
+            <div class="test-item">"Conteúdo focado no mercado e professores atuantes. Nota 10."<br><strong>- Maria L.</strong></div>
+            <div class="test-item">"O melhor custo-benefício para quem quer entrar na área de tecnologia."<br><strong>- Ricardo M.</strong></div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 UniPlus Digital - Mais de 38.000 sonhos realizados através do EAD.
+    </footer>
+
+</body>
+</html>
