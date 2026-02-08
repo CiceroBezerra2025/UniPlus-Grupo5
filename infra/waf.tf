@@ -1,9 +1,9 @@
 # Definição do Web ACL
 resource "aws_wafv2_web_acl" "main" {
   name        = "uniplus-waf-web-acl"
-  description = "WAF para proteção dos portais Uniplus"
+  description = "WAF para protecao dos portais Uniplus" # Acentos removidos
   scope       = "CLOUDFRONT" # Obrigatório para uso com CloudFront
-  region      = "us-east-1"
+  # Removi a linha 'region = "us-east-1"' pois para CLOUDFRONT o escopo já implica us-east-1 globalmente
 
   default_action {
     allow {}

@@ -1,18 +1,14 @@
-# 1. Configuração do Origin Access Control (OAC) - Recomendado pela AWS
-resource "aws_cloudfront_origin_access_control" "default" {
-  name                              = "oac-uniplus-portals"
-  description                       = "OAC para os buckets S3 dos portais"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
+# 1. Configuração do Origin Access Identity (OAI) - Mais compatível com laboratórios
+resource "aws_cloudfront_origin_access_identity" "default" {
+  comment = "OAI para acesso aos buckets S3 dos portais Uniplus"
 }
 
-# 2. Definição dos Portais (Lista para evitar repetição de código)
+# 2. Definição dos Portais
 locals {
   portals = {
-    "aluno"      = "uniplus-portal-aluno-spa"
-    "professor"  = "uniplus-portal-professor"
-    "matricula"  = "uniplus-sistema-matricula"
+    "aluno"     = "uniplus-portal-aluno-spa"
+    "professor" = "uniplus-portal-professor"
+    "matricula" = "uniplus-sistema-matricula"
   }
 }
 
@@ -29,7 +25,7 @@ resource "aws_s3_bucket_website_configuration" "web_config" {
   bucket   = each.value.id
 
   index_document { suffix = "index.html" }
-  error_document { key    = "index.html" } # Importante para SPAs (React/Vue)
+  error_document { key    = "index.html" }
 }
 
 # 4. Distribuições CloudFront
@@ -37,14 +33,18 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   for_each = local.portals
 
   enabled             = true
-  web_acl_id = aws_wafv2_web_acl.main.arn
+  web_acl_id          = aws_wafv2_web_acl.main.arn # Conectado ao WAF corrigido
   is_ipv6_enabled     = true
   default_root_object = "index.html"
 
   origin {
-    domain_name              = aws_s3_bucket.portal_buckets[each.key].bucket_regional_domain_name
-    origin_access_control_id = aws_cloudfront_origin_access_control.default.id
-    origin_id                = "S3-${each.value}"
+    domain_name = aws_s3_bucket.portal_buckets[each.key].bucket_regional_domain_name
+    origin_id   = "S3-${each.value}"
+
+    # Alterado de origin_access_control para s3_origin_config (OAI)
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.default.cloudfront_access_identity_path
+    }
   }
 
   default_cache_behavior {
@@ -63,9 +63,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     max_ttl                = 86400
   }
 
-  # Integração com WAF (Opcional - Requer ID do WAF WebACL)
-  # web_acl_id = aws_wafv2_web_acl.main.arn
-
   restrictions {
     geo_restriction {
       restriction_type = "none"
@@ -82,7 +79,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 }
 
-# 5. Políticas de Bucket (Permite que apenas o CloudFront leia os arquivos)
+# 5. Políticas de Bucket (Atualizado para OAI)
 resource "aws_s3_bucket_policy" "allow_cloudfront" {
   for_each = local.portals
   bucket   = aws_s3_bucket.portal_buckets[each.key].id
@@ -90,16 +87,13 @@ resource "aws_s3_bucket_policy" "allow_cloudfront" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "AllowCloudFrontServicePrincipalReadOnly"
+        Sid       = "AllowCloudFrontOAIReadOnly"
         Effect    = "Allow"
-        Principal = { Service = "cloudfront.amazonaws.com" }
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.portal_buckets[each.key].arn}/*"
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.s3_distribution[each.key].arn
-          }
+        Principal = {
+          AWS = aws_cloudfront_origin_access_identity.default.iam_arn
         }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.portal_buckets[each.key].arn}/*"
       }
     ]
   })
