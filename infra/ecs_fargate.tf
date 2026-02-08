@@ -11,7 +11,10 @@ resource "aws_ecs_task_definition" "apps" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+
+  # Utilização da LabRole pré-existente do laboratório para evitar erro de AccessDenied
+  execution_role_arn       = "arn:aws:iam::047118612495:role/LabRole"
+  task_role_arn            = "arn:aws:iam::047118612495:role/LabRole"
 
   container_definitions = jsonencode([{
     name  = each.key
@@ -38,7 +41,7 @@ resource "aws_ecs_service" "svc" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_subnet.private_subnet_1a.id, aws_subnet.private_subnet_1b.id]
+    subnets         = [aws_subnet.private_subnet_1a.id, aws_subnet.private_subnet_1b.id] [cite: 16]
     security_groups = [aws_security_group.ecs_tasks_sg.id]
   }
 
@@ -54,7 +57,7 @@ resource "aws_appautoscaling_target" "scale_target" {
   for_each           = toset(["auth", "conteudo", "academico"])
   max_capacity       = 4
   min_capacity       = 2
-  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.svc[each.key].name}"
+  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.svc[each.key].name}" [cite: 17]
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
@@ -69,7 +72,7 @@ resource "aws_appautoscaling_policy" "cpu_policy" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+      predefined_metric_type = "ECSServiceAverageCPUUtilization" [cite: 18]
     }
     target_value = 70.0
   }
