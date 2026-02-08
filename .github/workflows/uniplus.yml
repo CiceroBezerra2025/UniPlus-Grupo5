@@ -7,7 +7,7 @@ env:
   TF_VERSION: 1.10.5
   TF_LINT_VERSION: v0.52.0
   DESTROY: false
-  ENVIRONMENT: prod
+  ENVIRONMENT: production
 jobs:
   terraform:
        runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: ${{ vars.S }}
 
     - name: Terraform-docs | Generate documentation
       uses: terraform-docs/gh-actions@v1.3.0
