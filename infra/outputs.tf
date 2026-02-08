@@ -22,3 +22,9 @@ output "subnet_private_1b" {
   description = "Id da Private Subnet 1b"
   value       = aws_subnet.private_subnet_1b.id
 }
+
+output "portal_urls" {
+  value = {
+    for k, v in aws_s3_bucket_website_configuration.web_config : k => v.website_endpoint
+  }
+}
