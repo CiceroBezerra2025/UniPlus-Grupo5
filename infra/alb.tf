@@ -78,10 +78,12 @@ resource "aws_lb_listener" "http" {
 resource "aws_lb_listener_rule" "rules" {
   for_each     = toset(["auth", "conteudo", "academico"])
   listener_arn = aws_lb_listener.http.arn
+
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.tgs[each.key].arn
   }
+
   condition {
     path_pattern {
       values = ["/${each.key}*"]

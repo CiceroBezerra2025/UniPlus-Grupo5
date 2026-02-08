@@ -7,5 +7,5 @@ variable "db_username" {
 variable "db_password" {
   description = "Senha do banco de dados RDS"
   type        = string
-  sensitive   = true     # Isso evita que a senha apareça nos logs do console
+  sensitive   = true # Isso evita que a senha apareça nos logs do console
 }
