@@ -28,13 +28,14 @@ resource "aws_cloudwatch_metric_alarm" "microservice_errors" {
   alarm_description   = "Monitora falhas críticas no microserviço ${each.key}"
   
   dimensions = {
-    FunctionName = "uniplus-${each.key}-service"
+    # Referência dinâmica à função correspondente
+    FunctionName = aws_lambda_function.microservices[each.key].function_name
   }
+
+  depends_on = [aws_lambda_function.microservices]
 }
 
 # --- MONITORAMENTO DE PERFORMANCE (X-Ray) ---
-# Configuração para que os microserviços enviem rastros para o X-Ray
-# Isso ajuda a identificar qual serviço está lento em uma chamada encadeada
 resource "aws_lambda_function" "microservices" {
   for_each = toset(["auth", "conteudo", "academico"])
 
@@ -48,7 +49,6 @@ resource "aws_lambda_function" "microservices" {
     mode = "Active"
   }
 
-  # --- ESTRATÉGIA DE TAGS PARA FINOPS ---
   tags = {
     Name         = "UniPlus-${each.key}"
     Service      = each.key
@@ -58,13 +58,14 @@ resource "aws_lambda_function" "microservices" {
   }
 }
 
-# --- FILTROS DE MÉTRICAS PARA FINOPS ---
+# --- FILTROS DE MÉTRICAS PARA FINOPS (CORRIGIDO) ---
 # Criar uma métrica personalizada no CloudWatch para contar acessos ao portal
-# Útil para entender o custo por usuário ativo (FinOps Unit Metric)
 resource "aws_cloudwatch_log_metric_filter" "portal_access_count" {
   name           = "PortalAccessCount"
   pattern        = "[..., status=200, size, url=/portal*]"
-  log_group_name = "/aws/lambda/uniplus-auth-service"
+  
+  # CORREÇÃO: Referência direta ao recurso para garantir que o Log Group seja criado ANTES
+  log_group_name = aws_cloudwatch_log_group.microservices_logs["auth"].name
 
   metric_transformation {
     name      = "AccessCount"
