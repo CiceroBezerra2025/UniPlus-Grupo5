@@ -1,41 +1,20 @@
 # --- GRUPOS DE LOGS PARA MICROSERVIÇOS ---
-# Criando logs individuais para facilitar a depuração e o custo por serviço
+# Criando logs individuais com retenção curta para FinOps (economia de storage)
 resource "aws_cloudwatch_log_group" "microservices_logs" {
   for_each = toset(["auth", "conteudo", "academico"])
   
   name              = "/aws/lambda/uniplus-${each.key}-service"
-  retention_in_days = 7 # FinOps: retenção curta para economizar armazenamento
+  retention_in_days = 7 
   
   tags = {
     Microservice = each.key
     CostCenter   = "Microservices-Log"
+    Project      = "UniPlus-G5"
   }
 }
 
-# --- ALARMES DE ERROS (CloudWatch Alarms) ---
-# Alarme que dispara se qualquer microserviço apresentar erros frequentes
-resource "aws_cloudwatch_metric_alarm" "microservice_errors" {
-  for_each = aws_cloudwatch_log_group.microservices_logs
-
-  alarm_name          = "Error-Alarm-${each.key}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "Errors"
-  namespace           = "AWS/Lambda"
-  period              = "60"
-  statistic           = "Sum"
-  threshold           = "1"
-  alarm_description   = "Monitora falhas críticas no microserviço ${each.key}"
-  
-  dimensions = {
-    # Referência dinâmica à função correspondente
-    FunctionName = aws_lambda_function.microservices[each.key].function_name
-  }
-
-  depends_on = [aws_lambda_function.microservices]
-}
-
-# --- MONITORAMENTO DE PERFORMANCE (X-Ray) ---
+# --- MONITORAMENTO DE PERFORMANCE E RASTREIO (X-Ray) ---
+# Configuração das Lambdas com rastreio ativo para identificar gargalos
 resource "aws_lambda_function" "microservices" {
   for_each = toset(["auth", "conteudo", "academico"])
 
@@ -54,22 +33,45 @@ resource "aws_lambda_function" "microservices" {
     Service      = each.key
     Environment  = "Production"
     Project      = "UniPlus-G5"
-    ManagedBy    = "Terraform"
   }
 }
 
-# --- FILTROS DE MÉTRICAS PARA FINOPS (CORRIGIDO) ---
-# Criar uma métrica personalizada no CloudWatch para contar acessos ao portal
+# --- ALARMES DE ERROS (CloudWatch Alarms) ---
+# Alarme individual por microserviço para deteção rápida de falhas
+resource "aws_cloudwatch_metric_alarm" "microservice_errors" {
+  for_each = aws_lambda_function.microservices
+
+  alarm_name          = "Error-Alarm-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = "60"
+  statistic           = "Sum"
+  threshold           = "0" # Dispara com qualquer erro
+  alarm_description   = "Monitora falhas críticas no microserviço ${each.key}"
+  
+  dimensions = {
+    FunctionName = each.value.function_name
+  }
+}
+
+# --- FILTROS DE MÉTRICAS PARA FINOPS (CORREÇÃO DA SINTAXE) ---
+# Criar uma métrica para contar acessos bem-sucedidos ao portal (Unit Metric)
 resource "aws_cloudwatch_log_metric_filter" "portal_access_count" {
   name           = "PortalAccessCount"
-  pattern        = "[..., status=200, size, url=/portal*]"
   
-  # CORREÇÃO: Referência direta ao recurso para garantir que o Log Group seja criado ANTES
+  # Correção: Sintaxe simplificada para busca de texto em logs
+  # Procura pela string "GET /portal" que indica um acesso ao frontend
+  pattern        = "\"GET /portal\"" 
+
+  # Correção: Referência direta ao recurso para garantir ordem de criação
   log_group_name = aws_cloudwatch_log_group.microservices_logs["auth"].name
 
   metric_transformation {
     name      = "AccessCount"
     namespace = "UniPlus/Traffic"
     value     = "1"
+    default_value = 0 # Importante para FinOps para garantir que a métrica exista
   }
 }
